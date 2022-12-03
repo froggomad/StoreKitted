@@ -1,7 +1,11 @@
 import SwiftUI
 import StoreKit
 
+@MainActor
 public struct StoreKitted {
+    public typealias Product = StoreKit.Product
+    public typealias Transaction = StoreKit.Transaction
+    public typealias TransactionVerificationResult = VerificationResult<Transaction>
 
     public enum PurchaseError: Error {
         case canceled
@@ -51,7 +55,6 @@ public struct StoreKitted {
         _ = try? await purchaseManager.fetchProducts()
     }
 
-    @MainActor
     @discardableResult mutating public func fetchProducts() async throws -> [Product] {
         try await purchaseManager.fetchProducts()
     }
