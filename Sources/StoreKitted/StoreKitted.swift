@@ -34,8 +34,8 @@ public class StoreKitted: ObservableObject {
         }
     }
 
-    @Published var fetchedProducts: [Product] = []
-    @Published var purchasedProducts: [Product] = []
+    @Published public var fetchedProducts: [Product] = []
+    @Published public var purchasedProducts: [Product] = []
     @Published private var purchaseManager: PurchaseManager
     private var cancellable: AnyCancellable?
 
