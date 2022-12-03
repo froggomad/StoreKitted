@@ -2,7 +2,6 @@ import Combine
 import StoreKit
 import SwiftUI
 
-@MainActor
 public class StoreKitted: ObservableObject {
     public typealias Product = StoreKit.Product
     public typealias Transaction = StoreKit.Transaction
@@ -35,7 +34,6 @@ public class StoreKitted: ObservableObject {
         }
     }
 
-
     @Published var fetchedProducts: [Product] = []
     @Published var purchasedProducts: [Product] = []
     @Published private var purchaseManager: PurchaseManager
@@ -54,15 +52,15 @@ public class StoreKitted: ObservableObject {
         PurchaseManager.productIds.append(productId)
         _ = try? await purchaseManager.fetchProducts()
     }
-
+    @MainActor
     @discardableResult public func fetchProducts() async throws -> [Product] {
         try await purchaseManager.fetchProducts()
     }
-
+    @MainActor
     public func requestAndHandlePurchase(_ product: Product) async -> Result<Product, PurchaseError> {
         await purchaseManager.requestAndHandlePurchase(product)
     }
-
+    @MainActor
     public func restorePurchases() async throws  {
         try await purchaseManager.fetchProducts()
     }
