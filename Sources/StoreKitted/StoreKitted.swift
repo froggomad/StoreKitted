@@ -1,8 +1,9 @@
-import SwiftUI
+import Combine
 import StoreKit
+import SwiftUI
 
 @MainActor
-public struct StoreKitted {
+public class StoreKitted: ObservableObject {
     public typealias Product = StoreKit.Product
     public typealias Transaction = StoreKit.Transaction
     public typealias TransactionVerificationResult = VerificationResult<Transaction>
@@ -34,28 +35,27 @@ public struct StoreKitted {
         }
     }
 
-    var fetchedProducts: [Product] {
-        purchaseManager.fetchedProducts
-    }
 
-    var purchasedProducts: [Product] {
-        purchaseManager.purchasedProducts
-    }
-
-    private var purchaseManager: PurchaseManager
-    private var productIds: [String]
+    @Published var fetchedProducts: [Product] = []
+    @Published var purchasedProducts: [Product] = []
+    @Published private var purchaseManager: PurchaseManager
+    private var cancellable: AnyCancellable?
 
     public init(productIds: [String]) {
-        self.productIds = productIds
         self.purchaseManager = .init(productIds: productIds)
+        cancellable = purchaseManager.objectWillChange.sink { [weak self] in
+            guard let self = self else { return }
+            self.fetchedProducts = self.purchaseManager.fetchedProducts
+            self.purchasedProducts = self.purchaseManager.purchasedProducts
+        }
     }
 
-    mutating public func addProductId(_ productId: String) async {
-        self.productIds.append(productId)
+    public func addProductId(_ productId: String) async {
+        PurchaseManager.productIds.append(productId)
         _ = try? await purchaseManager.fetchProducts()
     }
 
-    @discardableResult mutating public func fetchProducts() async throws -> [Product] {
+    @discardableResult public func fetchProducts() async throws -> [Product] {
         try await purchaseManager.fetchProducts()
     }
 
