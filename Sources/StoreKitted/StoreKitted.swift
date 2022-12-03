@@ -57,7 +57,7 @@ public class StoreKitted: ObservableObject {
         try await purchaseManager.fetchProducts()
     }
     @MainActor
-    public func requestAndHandlePurchase(_ product: Product) async -> Result<Product, PurchaseError> {
+    public func purchase(_ product: Product) async -> Result<Product, PurchaseError> {
         await purchaseManager.requestAndHandlePurchase(product)
     }
     @MainActor
@@ -160,7 +160,7 @@ class PurchaseManager: NSObject, ObservableObject, SKPaymentTransactionObserver 
         switch result {
         case .verified(let transaction):
             guard let product = map(productId: transaction.productID) else {
-                return transaction
+                throw StoreKitted.PurchaseError.successWithConversionError
             }
             self.purchasedProducts.append(product)
         case .unverified:
